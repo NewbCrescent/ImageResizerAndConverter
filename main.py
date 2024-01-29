@@ -9,7 +9,7 @@ def width_resize_and_convert(filepath: str, output_filepath: str, width: int, ou
 
             multiplier_height: float | int = image.size[1] / image.size[0]
             resized_image: Image = image.resize((width, ceil(width * multiplier_height))) #ceil, so that it doesn't cause errors with very small images becuase of the height
-            resized_image.save(output_filepath, format=output_format if output_format[0] != "." else output_format[1:]) #so that inputs starting with "." work)
+            resized_image.save(output_filepath, format=output_format)
 
     except PermissionError as p:
         print(f"The error is {p}")
@@ -22,7 +22,7 @@ def many_imgs(filepath: str, output_filepath_noname: str, name: str, output_form
 
     for i in range(times):
         width_resize_and_convert(rf'{filepath}',
-                           rf'{output_filepath_noname}/{name}-{width + increment * i}.{output_format if output_format[0] != "." else output_format[1:]}',
+                           rf'{output_filepath_noname}/{name}-{width + increment * i}.{output_format}',
                            width=width + increment * i,
                            output_format=output_format) #make sure the arguments use double quotes because it breaks with single quotes
 
@@ -39,10 +39,18 @@ def many_imgs(filepath: str, output_filepath_noname: str, name: str, output_form
 
 def main():
     try:
-        filepath: str = input("What's the filepath for the original image?: ")
-        output_filepath_noname: str = input("What's the directory/folder for your new images?: ")
+        filepath: str = input("What's the filepath for the original image?: ").replace('"', '')
+        output_filepath_noname: str = input("What's the directory/folder for your new images?: ").replace('"', '')
+        #using the replace method b/c sometimes when copying filepaths it adds double quotes to it and it breaks the program
+
         name: str = input("What should be the file name for your new images?: ")
         output_format: str = input("What's the format of the new images?: ")
+
+        if output_format[0] == ".": #so that inputs starting with "." work)
+            output_format = output_format[1:]
+
+        if output_format == "jpg": #b/c pillow doesn't accept jpg
+            output_format = "jpeg"
 
         while True:
             try:
